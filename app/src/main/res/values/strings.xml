@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">PaperPlane-study</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="nav_home">首页</string>
+    <string name="nav_bookmarks">收藏</string>
+    <string name="change_theme">切换主题</string>
+    <string name="settings">设置</string>
+    <string name="about">关于</string>
+    <string name="feel_lucky">随便看看</string>
+    <string name="title_activity_settings_preference">设置</string>
+
+    <!--settings_preference_fragment-->
+    <string name="basic_settings">基本设置</string>
+    <string name="no_picture_mode">无图模式</string>
+    <string name="no_picture_mode_description">阅读时不再加载图片</string>
+    <string name="in_app_browser">使用内置浏览器</string>
+    <string name="in_app_browser_description">应用内查看链接</string>
+    <string name="time_of_saving_articles">文章保存时间</string>
+    <string name="other_settings">其他设置</string>
+    <string name="clear_image_cache">清除图片缓存</string>
+    <string name="clear_image_cache_successfully">清理成功</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="zhihu_daily">知乎日报</string>
+    <string name="guokr_handpick">果壳精选</string>
+    <string name="douban_moment">豆瓣一刻</string>
+    <string name="loaded_failed">加载失败</string>
+    <string name="retry">重试</string>
+    <string name="loading_more">正在加载......</string>
+    <string name="share_extra">分享自 纸飞机</string>
+    <string name="share_to">分享至</string>
+    <string name="action_add_to_bookmarks">添加到收藏</string>
+    <string name="action_copy_link">复制链接</string>
+    <string name="action_open_in_browser">在浏览器中打开</string>
+    <string name="action_copy_text">复制文本内容</string>
+    <string name="action_share_as_text">作为文本分享</string>
+    <string name="action_delete_from_bookmarks">取消收藏</string>
+    <string name="share_error">分享失败</string>
+    <string name="no_browser_found">未安装浏览器</string>
+    <string name="copied_to_clipboard">复制成功</string>
+    <string name="copied_to_clipboard_failed">复制失败</string>
+    <string name="added_to_bookmarks">已添加到收藏</string>
+    <string name="deleted_from_bookmarks">已从收藏中删除</string>
+    <string name="network_error">网络走丢了...点击重试</string>
+    <string name="refresh">刷新</string>
+    <string name="search_bookmarks">搜索收藏</string>
+    <string name="title_activity_link">链接</string>
+    <string name="title_activity_detail">title_activity_detail</string>
+
+    //关于
+    <string name="no_mail_app">没有找到邮件类App</string>
+    <string name="mail_topic">APP使用反馈和建议</string>
+    <string name="sendto">mailto:liliping6606787@126.com</string>
+    <string name="device_model">设备型号:</string>
+    <string name="sdk_version">SDK版本:</string>
+    <string name="version">版本:V1.0.0</string>
+    <string name="github_url">https://github.com/liliping101</string>
+    <string name="author">作者</string>
+    <string name="author_name">李丽萍</string>
+    <string name="author_description">广东,广州</string>
+    <string name="follow_me_on_github">在GitHub关注我</string>
+    <string name="support">支持</string>
+    <string name="feedback_description">帮助我改进App</string>
+    <string name="feedback">反馈Bug / 建议</string>
+    <string name="open_source_license">开源许可</string>
+    <!--setting-->
+</resources>
