@@ -24,12 +24,7 @@ Clone仓库:
 git clone https://github.com/liliping101/PaperPlane-study.git
 ```
 
-获取Master分支
-```
-git checkout master
-```
-
-最后在Android Studio中打开`PaperPlane/`目录。
+最后在Android Studio中打开`PaperPlane-study/`目录。
 
 ## 相关开源项目
 名称 | 介绍
