@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.ZhihuDailyStory;
+import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
 import com.bh.paperplane_study.gen.DaoSession;
 import com.bh.paperplane_study.gen.HistoryEntityDao;
@@ -37,6 +38,7 @@ public class CacheService extends Service {
     private DaoSession daoSession;
     private HistoryEntityDao historyEntityDao;
     private HttpMethods httpMethods;
+    private BeanTypeConverter converter;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -58,6 +60,7 @@ public class CacheService extends Service {
         daoSession = ((App) getApplicationContext()).getDaoSession();
         historyEntityDao = daoSession.getHistoryEntityDao();
         httpMethods = HttpMethods.getInstance();
+        converter = new BeanTypeConverter();
     }
 
     class LocalReceiver extends BroadcastReceiver {
@@ -94,7 +97,7 @@ public class CacheService extends Service {
                 public void onNext(ResponseBody body) {
                     if(body!=null) {
                         HistoryEntity entity = historyEntityDao.queryBuilder()
-                               .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_DOUBAN.name()))
+                               .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_DOUBAN)))
                                .build()
                                .unique();
                         if (entity != null) {
@@ -126,7 +129,7 @@ public class CacheService extends Service {
                     public void onNext(ResponseBody response) {
                         if(response!=null) {
                             HistoryEntity entity = historyEntityDao.queryBuilder()
-                                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_GUOKR.name()))
+                                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_GUOKR)))
                                     .build()
                                     .unique();
                             if (entity != null) {
@@ -167,7 +170,7 @@ public class CacheService extends Service {
                                 public void onNext(ResponseBody body) {
                                     try {
                                         HistoryEntity entity = historyEntityDao.queryBuilder()
-                                                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_ZHIHU.name()))
+                                                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_ZHIHU)))
                                                 .build()
                                                 .unique();
                                         entity.setContent(new String(body.bytes()));
@@ -179,7 +182,7 @@ public class CacheService extends Service {
                             });
                         } else {
                             HistoryEntity entity = historyEntityDao.queryBuilder()
-                                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_ZHIHU.name()))
+                                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_ZHIHU)))
                                     .build()
                                     .unique();
                             if (entity != null) {

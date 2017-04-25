@@ -4,10 +4,9 @@ import com.bh.paperplane_study.bean.BeanType;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Keep;
-import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.NotNull;
 
 /**
  * Created by Administrator on 2017/4/11.
@@ -26,28 +25,16 @@ public class HistoryEntity {
     private String content;
     private java.util.Date date;
     private Integer bookmark;
-    @Convert(converter = BeanTypeConverter.class, columnType = String.class)
+    @Convert(converter = BeanTypeConverter.class, columnType = Integer.class)
     private BeanType type;
 
-    @Generated(hash = 1272611929)
-    @Keep
+    @Generated(hash = 1235354573)
     public HistoryEntity() {
     }
 
-    @Generated(hash = 1686394253)
-    @Keep
-    public HistoryEntity(@NotNull Integer contentId, String news, String content, java.util.Date date, BeanType type) {
-        this.contentId = contentId;
-        this.news = news;
-        this.content = content;
-        this.date = date;
-        this.type = type;
-    }
-
-    @Generated(hash = 2114219149)
-    @Keep
+    @Generated(hash = 1964464217)
     public HistoryEntity(Long id, @NotNull Integer contentId, String news, String content, java.util.Date date,
-                         Integer bookmark, BeanType type) {
+            Integer bookmark, BeanType type) {
         this.id = id;
         this.contentId = contentId;
         this.news = news;

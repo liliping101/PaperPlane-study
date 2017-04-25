@@ -33,7 +33,7 @@ public class HistoryEntityDao extends AbstractDao<HistoryEntity, Long> {
         public final static Property Content = new Property(3, String.class, "content", false, "CONTENT");
         public final static Property Date = new Property(4, java.util.Date.class, "date", false, "DATE");
         public final static Property Bookmark = new Property(5, Integer.class, "bookmark", false, "BOOKMARK");
-        public final static Property Type = new Property(6, String.class, "type", false, "TYPE");
+        public final static Property Type = new Property(6, Integer.class, "type", false, "TYPE");
     }
 
     private final BeanTypeConverter typeConverter = new BeanTypeConverter();
@@ -56,7 +56,7 @@ public class HistoryEntityDao extends AbstractDao<HistoryEntity, Long> {
                 "\"CONTENT\" TEXT," + // 3: content
                 "\"DATE\" INTEGER," + // 4: date
                 "\"BOOKMARK\" INTEGER," + // 5: bookmark
-                "\"TYPE\" TEXT);"); // 6: type
+                "\"TYPE\" INTEGER);"); // 6: type
     }
 
     /** Drops the underlying database table. */
@@ -97,7 +97,7 @@ public class HistoryEntityDao extends AbstractDao<HistoryEntity, Long> {
  
         BeanType type = entity.getType();
         if (type != null) {
-            stmt.bindString(7, typeConverter.convertToDatabaseValue(type));
+            stmt.bindLong(7, typeConverter.convertToDatabaseValue(type));
         }
     }
 
@@ -133,7 +133,7 @@ public class HistoryEntityDao extends AbstractDao<HistoryEntity, Long> {
  
         BeanType type = entity.getType();
         if (type != null) {
-            stmt.bindString(7, typeConverter.convertToDatabaseValue(type));
+            stmt.bindLong(7, typeConverter.convertToDatabaseValue(type));
         }
     }
 
@@ -151,7 +151,7 @@ public class HistoryEntityDao extends AbstractDao<HistoryEntity, Long> {
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // content
             cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // date
             cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5), // bookmark
-            cursor.isNull(offset + 6) ? null : typeConverter.convertToEntityProperty(cursor.getString(offset + 6)) // type
+            cursor.isNull(offset + 6) ? null : typeConverter.convertToEntityProperty(cursor.getInt(offset + 6)) // type
         );
         return entity;
     }
@@ -164,7 +164,7 @@ public class HistoryEntityDao extends AbstractDao<HistoryEntity, Long> {
         entity.setContent(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setDate(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
         entity.setBookmark(cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5));
-        entity.setType(cursor.isNull(offset + 6) ? null : typeConverter.convertToEntityProperty(cursor.getString(offset + 6)));
+        entity.setType(cursor.isNull(offset + 6) ? null : typeConverter.convertToEntityProperty(cursor.getInt(offset + 6)));
      }
     
     @Override

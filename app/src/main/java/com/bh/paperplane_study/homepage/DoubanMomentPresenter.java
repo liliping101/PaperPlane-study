@@ -8,6 +8,7 @@ import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
 import com.bh.paperplane_study.detail.DetailActivity;
+import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
 import com.bh.paperplane_study.gen.DaoSession;
 import com.bh.paperplane_study.gen.HistoryEntityDao;
@@ -45,6 +46,7 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
     private RxQuery<HistoryEntity> historysQuery;
     private DaoSession daoSession;
     private HistoryEntityDao historyEntityDao;
+    private BeanTypeConverter converter;
     private Gson gson = new Gson();
 
     private ArrayList<DoubanMomentNews.posts> list = new ArrayList<>();
@@ -56,6 +58,7 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
         httpMethods = HttpMethods.getInstance();
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
         historyEntityDao = daoSession.getHistoryEntityDao();
+        converter = new BeanTypeConverter();
     }
 
     @Override
@@ -134,7 +137,7 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
                 // query all notes, sorted a-z by their text
                 historysQuery = daoSession.getHistoryEntityDao()
                         .queryBuilder()
-                        .where(HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_DOUBAN.name()))
+                        .where(HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_DOUBAN)))
                         .orderAsc(HistoryEntityDao.Properties.Id)
                         .rx();
                 historysQuery
@@ -208,7 +211,7 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
     private boolean queryIfIDExists(int id){
         List<HistoryEntity> query = daoSession.getHistoryEntityDao()
                 .queryBuilder()
-                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_DOUBAN.name()))
+                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_DOUBAN)))
                 .list();
 
         if(query.size()>0) {

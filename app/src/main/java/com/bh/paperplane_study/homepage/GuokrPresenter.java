@@ -25,6 +25,7 @@ import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.GuokrHandpickNews;
 import com.bh.paperplane_study.detail.DetailActivity;
+import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
 import com.bh.paperplane_study.gen.DaoSession;
 import com.bh.paperplane_study.gen.HistoryEntityDao;
@@ -57,6 +58,7 @@ public class GuokrPresenter implements GuokrContract.Presenter {
     private RxQuery<HistoryEntity> historysQuery;
     private DaoSession daoSession;
     private HistoryEntityDao historyEntityDao;
+    private BeanTypeConverter converter;
 
     public GuokrPresenter(Context context, GuokrContract.View view) {
         this.view = view;
@@ -65,6 +67,7 @@ public class GuokrPresenter implements GuokrContract.Presenter {
         httpMethods = HttpMethods.getInstance();
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
         historyEntityDao = daoSession.getHistoryEntityDao();
+        converter = new BeanTypeConverter();
     }
 
     @Override
@@ -121,7 +124,7 @@ public class GuokrPresenter implements GuokrContract.Presenter {
             // query all notes, sorted a-z by their text
             historysQuery = daoSession.getHistoryEntityDao()
                     .queryBuilder()
-                    .where(HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_GUOKR.name()))
+                    .where(HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_GUOKR)))
                     .orderAsc(HistoryEntityDao.Properties.Id)
                     .rx();
 
@@ -196,7 +199,7 @@ public class GuokrPresenter implements GuokrContract.Presenter {
     private boolean queryIfIDExists(int id){
         List<HistoryEntity> query = daoSession.getHistoryEntityDao()
                 .queryBuilder()
-                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_GUOKR.name()))
+                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_GUOKR)))
                 .list();
 
         if(query.size()>0) {

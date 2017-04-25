@@ -5,5 +5,11 @@ package com.bh.paperplane_study.bean;
  */
 
 public enum BeanType {
-    TYPE_ZHIHU,TYPE_GUOKR,TYPE_DOUBAN;
+    DEFAULT(0), TYPE_ZHIHU(1),TYPE_GUOKR(2),TYPE_DOUBAN(3);
+
+    public final int id;
+
+    BeanType(int id) {
+        this.id = id;
+    }
 }

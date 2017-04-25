@@ -9,10 +9,13 @@ import com.bh.paperplane_study.bean.DoubanMomentNews;
 import com.bh.paperplane_study.bean.GuokrHandpickNews;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.detail.DetailActivity;
+import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
 import com.bh.paperplane_study.gen.DaoSession;
 import com.bh.paperplane_study.gen.HistoryEntityDao;
 import com.google.gson.Gson;
+
+import org.greenrobot.greendao.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +43,10 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
     private ArrayList<ZhihuDailyNews.Question> zhihuList;
     private ArrayList<Integer> types;
     private List<HistoryEntity> historysQuery;
+    private Query<HistoryEntity> query;
     private DaoSession daoSession;
     private Gson gson;
+    private BeanTypeConverter converter;
 
     public BookmarksPresenter(Context context, BookmarksContract.View view) {
         this.context = context;
@@ -56,6 +61,7 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
 
         gson = new Gson();
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
+        converter = new BeanTypeConverter();
     }
 
     @Override
@@ -114,10 +120,11 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
 
     @Override
     public void checkForFreshData() {
-        historysQuery = daoSession.getHistoryEntityDao()
+        query = daoSession.getHistoryEntityDao()
                 .queryBuilder()
-                .where(HistoryEntityDao.Properties.Bookmark.eq(1), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_ZHIHU.name()))
-                .list();
+                .where(HistoryEntityDao.Properties.Bookmark.eq(1), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_ZHIHU)))
+                .build();
+        historysQuery = query.list();
         types.add(TYPE_ZHIHU_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
             ZhihuDailyNews.Question question = gson.fromJson(history.getNews(), ZhihuDailyNews.Question.class);
@@ -125,11 +132,8 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
             types.add(TYPE_ZHIHU_NORMAL);
         }
 
-        historysQuery = daoSession.getHistoryEntityDao()
-                .queryBuilder()
-                .where(HistoryEntityDao.Properties.Bookmark.eq(1), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_GUOKR.name()))
-                .list();
-
+        query.setParameter(1, converter.convertToDatabaseValue(BeanType.TYPE_GUOKR));
+        historysQuery = query.list();
         types.add(TYPE_GUOKR_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
             GuokrHandpickNews.result result = gson.fromJson(history.getNews(), GuokrHandpickNews.result.class);
@@ -137,11 +141,8 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
             types.add(TYPE_GUOKR_NORMAL);
         }
 
-        historysQuery = daoSession.getHistoryEntityDao()
-                .queryBuilder()
-                .where(HistoryEntityDao.Properties.Bookmark.eq(1), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_DOUBAN.name()))
-                .list();
-
+        query.setParameter(1, converter.convertToDatabaseValue(BeanType.TYPE_DOUBAN));
+        historysQuery = query.list();
         types.add(TYPE_DOUBAN_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
             DoubanMomentNews.posts post = gson.fromJson(history.getNews(), DoubanMomentNews.posts.class);

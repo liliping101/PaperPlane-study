@@ -10,10 +10,13 @@ import com.bh.paperplane_study.bean.DoubanMomentNews;
 import com.bh.paperplane_study.bean.GuokrHandpickNews;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.detail.DetailActivity;
+import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
 import com.bh.paperplane_study.gen.DaoSession;
 import com.bh.paperplane_study.gen.HistoryEntityDao;
 import com.google.gson.Gson;
+
+import org.greenrobot.greendao.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,9 @@ import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_GUOKR_NORMAL
 import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_GUOKR_WITH_HEADER;
 import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_ZHIHU_NORMAL;
 import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_ZHIHU_WITH_HEADER;
+import static com.bh.paperplane_study.service.CacheService.TYPE_DOUBAN;
+import static com.bh.paperplane_study.service.CacheService.TYPE_GUOKR;
+import static com.bh.paperplane_study.service.CacheService.TYPE_ZHIHU;
 
 /**
  * Created by lizhaotailang on 2016/12/25.
@@ -42,6 +48,8 @@ public class SearchPresenter implements SearchContract.Presenter {
     private ArrayList<Integer> types;
     private List<HistoryEntity> historysQuery;
     private DaoSession daoSession;
+    private Query<HistoryEntity> query;
+    private BeanTypeConverter converter;
 
     public SearchPresenter(Context context, SearchContract.View view) {
         this.context = context;
@@ -55,6 +63,7 @@ public class SearchPresenter implements SearchContract.Presenter {
 
         types = new ArrayList<>();
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
+        converter = new BeanTypeConverter();
     }
 
     @Override
@@ -70,13 +79,13 @@ public class SearchPresenter implements SearchContract.Presenter {
         doubanList.clear();
         types.clear();
 
-        historysQuery = daoSession.getHistoryEntityDao()
+        query = daoSession.getHistoryEntityDao()
                 .queryBuilder()
                 .where(HistoryEntityDao.Properties.Bookmark.eq(1),
-                        HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_ZHIHU.name()),
+                        HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_ZHIHU)),
                         HistoryEntityDao.Properties.News.like("%"+queryWords+"%"))
-                .list();
-
+                .build();
+        historysQuery = query.list();
         types.add(TYPE_ZHIHU_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
             ZhihuDailyNews.Question question = gson.fromJson(history.getNews(), ZhihuDailyNews.Question.class);
@@ -84,13 +93,8 @@ public class SearchPresenter implements SearchContract.Presenter {
             types.add(TYPE_ZHIHU_NORMAL);
         }
 
-        historysQuery = daoSession.getHistoryEntityDao()
-                .queryBuilder()
-                .where(HistoryEntityDao.Properties.Bookmark.eq(1),
-                        HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_GUOKR.name()),
-                        HistoryEntityDao.Properties.News.like("%"+queryWords+"%"))
-                .list();
-
+        query.setParameter(1, converter.convertToDatabaseValue(BeanType.TYPE_GUOKR));
+        historysQuery = query.list();
         types.add(TYPE_GUOKR_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
             GuokrHandpickNews.result result = gson.fromJson(history.getNews(), GuokrHandpickNews.result.class);
@@ -98,13 +102,8 @@ public class SearchPresenter implements SearchContract.Presenter {
             types.add(TYPE_GUOKR_NORMAL);
         }
 
-        historysQuery = daoSession.getHistoryEntityDao()
-                .queryBuilder()
-                .where(HistoryEntityDao.Properties.Bookmark.eq(1),
-                        HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_DOUBAN.name()),
-                        HistoryEntityDao.Properties.News.like("%"+queryWords+"%"))
-                .list();
-
+        query.setParameter(1, converter.convertToDatabaseValue(BeanType.TYPE_DOUBAN));
+        historysQuery = query.list();
         types.add(TYPE_DOUBAN_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
             DoubanMomentNews.posts post = gson.fromJson(history.getNews(), DoubanMomentNews.posts.class);

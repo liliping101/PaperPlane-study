@@ -24,6 +24,7 @@ import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.detail.DetailActivity;
+import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
 import com.bh.paperplane_study.gen.DaoSession;
 import com.bh.paperplane_study.gen.HistoryEntityDao;
@@ -67,6 +68,7 @@ public class ZhihuDailyPresenter implements ZhihuDailyContract.Presenter {
     private RxQuery<HistoryEntity> historysQuery;
     private DaoSession daoSession;
     private HistoryEntityDao historyEntityDao;
+    private BeanTypeConverter converter;
 
     public ZhihuDailyPresenter(Context context, final ZhihuDailyContract.View view) {
         this.context = context;
@@ -75,6 +77,7 @@ public class ZhihuDailyPresenter implements ZhihuDailyContract.Presenter {
         httpMethods = HttpMethods.getInstance();
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
         historyEntityDao = daoSession.getHistoryEntityDao();
+        converter = new BeanTypeConverter();
     }
 
     @Override
@@ -138,7 +141,7 @@ public class ZhihuDailyPresenter implements ZhihuDailyContract.Presenter {
                 // query all notes, sorted a-z by their text
                 historysQuery = daoSession.getHistoryEntityDao()
                                         .queryBuilder()
-                                        .where(HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_ZHIHU.name()))
+                                        .where(HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_ZHIHU)))
                                         .orderAsc(HistoryEntityDao.Properties.Id)
                                         .rx();
                 historysQuery.list()
@@ -222,7 +225,7 @@ public class ZhihuDailyPresenter implements ZhihuDailyContract.Presenter {
     private boolean queryIfIDExists(int id){
         List<HistoryEntity> query = daoSession.getHistoryEntityDao()
                 .queryBuilder()
-                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(BeanType.TYPE_ZHIHU.name()))
+                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_ZHIHU)))
                 .list();
 
         if(query.size()>0) {

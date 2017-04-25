@@ -17,6 +17,7 @@ import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
 import com.bh.paperplane_study.bean.DoubanMomentStory;
 import com.bh.paperplane_study.bean.ZhihuDailyStory;
+import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
 import com.bh.paperplane_study.gen.DaoSession;
 import com.bh.paperplane_study.gen.HistoryEntityDao;
@@ -51,6 +52,7 @@ public class DetailPresenter implements DetailContract.Presenter {
     private RxQuery<HistoryEntity> historysQuery;
     private DaoSession daoSession;
     private HistoryEntityDao historyEntityDao;
+    private BeanTypeConverter converter;
 
     private Gson gson;
 
@@ -85,6 +87,7 @@ public class DetailPresenter implements DetailContract.Presenter {
         historyEntityDao = daoSession.getHistoryEntityDao();
         gson = new Gson();
         httpMethods = HttpMethods.getInstance();
+        converter = new BeanTypeConverter();
     }
 
 
@@ -237,7 +240,8 @@ public class DetailPresenter implements DetailContract.Presenter {
             // delete
             // update Zhihu set bookmark = 0 where zhihu_id = id
             HistoryEntity entity = historyEntityDao.queryBuilder()
-                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(type.name())).build().unique();
+                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(type)))
+                    .build().unique();
             if (entity != null) {
                 entity.setBookmark(0);
                 historyEntityDao.update(entity);
@@ -247,7 +251,8 @@ public class DetailPresenter implements DetailContract.Presenter {
             // add
             // update Zhihu set bookmark = 1 where zhihu_id = id
             HistoryEntity entity = historyEntityDao.queryBuilder()
-                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(type.name())).build().unique();
+                    .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(type)))
+                    .build().unique();
             if (entity != null) {
                 entity.setBookmark(1);
                 historyEntityDao.update(entity);
@@ -267,7 +272,7 @@ public class DetailPresenter implements DetailContract.Presenter {
         List<HistoryEntity> query = daoSession.getHistoryEntityDao()
                 .queryBuilder()
                 .where(HistoryEntityDao.Properties.ContentId.eq(id),
-                        HistoryEntityDao.Properties.Type.eq(type.name()),
+                        HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(type)),
                         HistoryEntityDao.Properties.Bookmark.eq(1))
                 .list();
 
@@ -320,7 +325,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                     });
                 } else {
                     HistoryEntity entity = historyEntityDao.queryBuilder()
-                            .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(type.name()))
+                            .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(type)))
                             .build()
                             .unique();
                     if (entity != null&&entity.getContent()!=null) {
@@ -365,7 +370,8 @@ public class DetailPresenter implements DetailContract.Presenter {
                             });
                 } else {
                     HistoryEntity entity = historyEntityDao.queryBuilder()
-                            .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(type.name())).build().unique();
+                            .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(type)))
+                            .build().unique();
                     if (entity != null&&entity.getContent()!=null) {
                         guokrStory = entity.getContent();
                         convertGuokrContent(guokrStory);
@@ -396,7 +402,8 @@ public class DetailPresenter implements DetailContract.Presenter {
                     });
                 } else {
                     HistoryEntity entity = historyEntityDao.queryBuilder()
-                            .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(type.name())).build().unique();
+                            .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(type)))
+                            .build().unique();
                     if (entity != null&&entity.getContent()!=null) {
                         doubanMomentStory = gson.fromJson(entity.getContent(), DoubanMomentStory.class);
                         view.showResult(convertDoubanContent());
