@@ -205,6 +205,10 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
         Calendar temp = Calendar.getInstance();
         temp.clear();
         temp.set(mYear, mMonth, mDay);
+        temp.add(Calendar.DAY_OF_MONTH, -1);
+        mYear = temp.get(Calendar.YEAR);
+        mMonth = temp.get(Calendar.MONTH);
+        mDay = temp.get(Calendar.DAY_OF_MONTH);
         loadPosts(temp.getTimeInMillis(), false);
     }
 

@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity
             navView.setCheckedItem(R.id.nav_home);
         }
 
-        startService(new Intent(this, CacheService.class));
+        //startService(new Intent(this, CacheService.class));
     }
 
     private void showMainFragment() {
