@@ -176,7 +176,9 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
 
     @Override
     public void refresh() {
-        loadPosts(Calendar.getInstance().getTimeInMillis(), true);
+        Calendar temp = Calendar.getInstance();
+        setDate(temp.get(Calendar.YEAR),temp.get(Calendar.MONTH),temp.get(Calendar.DAY_OF_MONTH));
+        loadPosts(temp.getTimeInMillis(), true);
     }
 
     @Override
