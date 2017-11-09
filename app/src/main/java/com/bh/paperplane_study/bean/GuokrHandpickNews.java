@@ -272,7 +272,7 @@ public class GuokrHandpickNews {
     public class source_data {
         private String image;
         private String summary;
-        private int id;
+        private String id;
         private String title;
 
         public String getImage() {
@@ -291,11 +291,11 @@ public class GuokrHandpickNews {
             this.summary = summary;
         }
 
-        public int getId() {
+        public String getId() {
             return id;
         }
 
-        public void setId(int id) {
+        public void setId(String id) {
             this.id = id;
         }
 
