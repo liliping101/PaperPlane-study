@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickContent;
 import com.bh.paperplane_study.bean.ZhihuDailyStory;
 import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
@@ -103,9 +104,7 @@ public class CacheService extends Service {
                 public void onCompleted() {}
 
                 @Override
-                public void onError(Throwable e){
-                    e.printStackTrace();
-                }
+                public void onError(Throwable e){}
 
                 @Override
                 public void onNext(ResponseBody body) {
@@ -141,28 +140,24 @@ public class CacheService extends Service {
         Log.d("llp cache guokr", "id="+id);
 
         if (NetworkState.networkConnected(getApplicationContext())) {
-            httpMethods.loadStringRequest(Api.GUOKR_ARTICLE_LINK_V1 + id,
+            httpMethods.loadStringRequest(Api.GUOKR_ARTICLE_LINK_V1 + id + ".json",
                 new Subscriber<ResponseBody>() {
                     @Override
-                    public void onCompleted() {
-
-                    }
+                    public void onCompleted() {}
 
                     @Override
-                    public void onError(Throwable e) {
-                       e.printStackTrace();
-                    }
+                    public void onError(Throwable e) {}
 
                     @Override
-                    public void onNext(ResponseBody response) {
-                        if(response!=null) {
+                    public void onNext(ResponseBody body) {
+                        if(body!=null) {
                             HistoryEntity entity = historyEntityDao.queryBuilder()
                                     .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_GUOKR)))
                                     .build()
                                     .unique();
                             if (entity != null) {
                                 try {
-                                    entity.setContent(new String(response.bytes()));
+                                    entity.setContent(new String(body.bytes()));
                                     historyEntityDao.update(entity);
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -191,9 +186,7 @@ public class CacheService extends Service {
                 public void onCompleted() {}
 
                 @Override
-                public void onError(Throwable e) {
-                    e.printStackTrace();
-                }
+                public void onError(Throwable e) {}
 
                 @Override
                 public void onNext(ZhihuDailyStory zhihuDailyStory) {

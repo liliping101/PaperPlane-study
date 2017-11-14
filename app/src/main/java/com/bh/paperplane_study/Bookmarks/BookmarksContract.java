@@ -4,7 +4,7 @@ import com.bh.paperplane_study.BasePresenter;
 import com.bh.paperplane_study.BaseView;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public interface BookmarksContract {
     interface View extends BaseView<Presenter> {
 
         void showResults(ArrayList<ZhihuDailyNews.Question> zhihuList,
-                         ArrayList<GuokrHandpickNews.result> guokrList,
+                         ArrayList<GuokrHandpickNewsResult> guokrList,
                          ArrayList<DoubanMomentNews.posts> doubanList,
                          ArrayList<Integer> types);
 

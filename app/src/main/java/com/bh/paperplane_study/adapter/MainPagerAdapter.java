@@ -27,8 +27,8 @@ public class MainPagerAdapter extends FragmentPagerAdapter{
         this.context = context;
         titles = new String[]{
                 context.getResources().getString(R.string.zhihu_daily),
-                context.getResources().getString(R.string.guokr_handpick),
-                context.getResources().getString(R.string.douban_moment)
+                context.getResources().getString(R.string.douban_moment),
+                context.getResources().getString(R.string.guokr_handpick)
         };
 
         this.zhihuFragment = zhihuDailyFragment;
@@ -45,10 +45,10 @@ public class MainPagerAdapter extends FragmentPagerAdapter{
     public Fragment getItem(int position) {
         if(position == 1)
         {
-            return guokrFragment;
+            return doubanFragment;
         }else if(position == 2)
         {
-            return doubanFragment;
+            return guokrFragment;
         }
 
         return zhihuFragment;

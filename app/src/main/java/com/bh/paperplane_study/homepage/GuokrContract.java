@@ -16,7 +16,7 @@
 
 package com.bh.paperplane_study.homepage;
 
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 
 import java.util.ArrayList;
 
@@ -27,13 +27,13 @@ import java.util.ArrayList;
 public interface GuokrContract {
 
     interface View extends BaseFragmentContract.View {
-        void showResults(ArrayList<GuokrHandpickNews.result> list);
+        void showResults(ArrayList<GuokrHandpickNewsResult> list);
 
         void setPresenter(GuokrContract.Presenter presenter);
     }
 
     interface Presenter extends BaseFragmentContract.Presenter {
-        void loadPosts();
+        void loadMore();
     }
 
 }

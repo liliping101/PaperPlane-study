@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 
 import com.bh.paperplane_study.R;
 import com.bh.paperplane_study.adapter.GuokrNewsAdapter;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.interfaze.OnRecyclerViewOnClickListener;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class GuokrFragment extends Fragment implements GuokrContract.View {
     }
 
     @Override
-    public void showResults(ArrayList<GuokrHandpickNews.result> list) {
+    public void showResults(ArrayList<GuokrHandpickNewsResult> list) {
         isFail = false;
         if(adapter==null) {
             adapter = new GuokrNewsAdapter(getContext(),list);
@@ -135,6 +135,31 @@ public class GuokrFragment extends Fragment implements GuokrContract.View {
             @Override
             public void onRefresh() {
                 presenter.refresh();
+            }
+        });
+
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            boolean isSlidingToLast = false;
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                // 当不滚动时
+                if(newState==RecyclerView.SCROLL_STATE_IDLE) {
+                    // 获取最后一个完全显示的item position
+                    int lastVisibleItem = manager.findLastCompletelyVisibleItemPosition();
+                    int totalItemNum = manager.getItemCount();
+
+                    if(lastVisibleItem==(totalItemNum-1)&& isSlidingToLast) {
+                        presenter.loadMore();
+                    }
+                }
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                isSlidingToLast = dy > 0;
             }
         });
     }

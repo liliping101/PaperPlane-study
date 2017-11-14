@@ -16,6 +16,7 @@ import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
 import com.bh.paperplane_study.bean.DoubanMomentStory;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickContent;
 import com.bh.paperplane_study.bean.ZhihuDailyStory;
 import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
@@ -33,7 +34,6 @@ import org.greenrobot.greendao.rx.RxQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.ResponseBody;
 import rx.Subscriber;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
@@ -45,7 +45,7 @@ public class DetailPresenter implements DetailContract.Presenter {
     private Context context;
 
     private ZhihuDailyStory zhihuDailyStory;
-    private String guokrStory;
+    private GuokrHandpickContent guokrStory;
     private DoubanMomentStory doubanMomentStory;
     private HttpMethods httpMethods;
     private SharedPreferences sp;
@@ -106,7 +106,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                     intent.setData(Uri.parse(zhihuDailyStory.getShare_url()));
                     break;
                 case TYPE_GUOKR:
-                    intent.setData(Uri.parse(Api.GUOKR_ARTICLE_LINK_V1 + id));
+                    intent.setData(Uri.parse(guokrStory.getResult().getUrl()));
                     break;
                 case TYPE_DOUBAN:
                     intent.setData(Uri.parse(doubanMomentStory.getShort_url()));
@@ -135,7 +135,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                     shareText += zhihuDailyStory.getShare_url();
                     break;
                 case TYPE_GUOKR:
-                    shareText += Api.GUOKR_ARTICLE_LINK_V1 + id;
+                    shareText += guokrStory.getResult().getUrl();
                     break;
                 case TYPE_DOUBAN:
                     shareText += doubanMomentStory.getShort_url();
@@ -181,7 +181,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                 clipData = ClipData.newPlainText("text", Html.fromHtml(title + "\n" + zhihuDailyStory.getBody()).toString());
                 break;
             case TYPE_GUOKR:
-                clipData = ClipData.newPlainText("text", Html.fromHtml(guokrStory).toString());
+                clipData = ClipData.newPlainText("text", Html.fromHtml(guokrStory.getResult().getContent()).toString());
                 break;
             case TYPE_DOUBAN:
                 clipData = ClipData.newPlainText("text", Html.fromHtml(title + "\n" + doubanMomentStory.getContent()).toString());
@@ -205,7 +205,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                 clipData = ClipData.newPlainText("text", Html.fromHtml(zhihuDailyStory.getShare_url()).toString());
                 break;
             case TYPE_GUOKR:
-                clipData = ClipData.newPlainText("text", Html.fromHtml(Api.GUOKR_ARTICLE_LINK_V1 + id).toString());
+                clipData = ClipData.newPlainText("text", Html.fromHtml(guokrStory.getResult().getUrl()).toString());
                 break;
             case TYPE_DOUBAN:
                 clipData = ClipData.newPlainText("text", Html.fromHtml(doubanMomentStory.getOriginal_url()).toString());
@@ -343,8 +343,8 @@ public class DetailPresenter implements DetailContract.Presenter {
 
             case TYPE_GUOKR:
                 if (NetworkState.networkConnected(context)) {
-                    httpMethods.loadStringRequest(Api.GUOKR_ARTICLE_LINK_V1 + id,
-                            new Subscriber<ResponseBody>() {
+                    httpMethods.loadGuokrDetail(Api.GUOKR_ARTICLE_LINK_V1 + id + ".json",
+                            new Subscriber<GuokrHandpickContent>() {
                                 @Override
                                 public void onCompleted() {
 
@@ -357,10 +357,10 @@ public class DetailPresenter implements DetailContract.Presenter {
                                 }
 
                                 @Override
-                                public void onNext(ResponseBody response) {
+                                public void onNext(GuokrHandpickContent content) {
                                     try {
-                                        convertGuokrContent(new String(response.bytes()));
-                                        view.showResult(guokrStory);
+                                        guokrStory = content;
+                                        view.showResult(convertGuokrContent());
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                         view.stopLoading();
@@ -373,9 +373,8 @@ public class DetailPresenter implements DetailContract.Presenter {
                             .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(type)))
                             .build().unique();
                     if (entity != null&&entity.getContent()!=null) {
-                        guokrStory = entity.getContent();
-                        convertGuokrContent(guokrStory);
-                        view.showResult(guokrStory);
+                        guokrStory = gson.fromJson(entity.getContent(), GuokrHandpickContent.class);
+                        view.showResult(convertGuokrContent());
                     }
                 }
                 break;
@@ -493,38 +492,30 @@ public class DetailPresenter implements DetailContract.Presenter {
                 .append("</body></html>").toString();
     }
 
-    private void convertGuokrContent(String content) {
-        // 简单粗暴的去掉下载的div部分
-        this.guokrStory = content.replace("<div class=\"down\" id=\"down-footer\">\n" +
-                "        <img src=\"http://static.guokr.com/apps/handpick/images/c324536d.jingxuan-logo.png\" class=\"jingxuan-img\">\n" +
-                "        <p class=\"jingxuan-txt\">\n" +
-                "            <span class=\"jingxuan-title\">果壳精选</span>\n" +
-                "            <span class=\"jingxuan-label\">早晚给你好看</span>\n" +
-                "        </p>\n" +
-                "        <a href=\"\" class=\"app-down\" id=\"app-down-footer\">下载</a>\n" +
-                "    </div>\n" +
-                "\n" +
-                "    <div class=\"down-pc\" id=\"down-pc\">\n" +
-                "        <img src=\"http://static.guokr.com/apps/handpick/images/c324536d.jingxuan-logo.png\" class=\"jingxuan-img\">\n" +
-                "        <p class=\"jingxuan-txt\">\n" +
-                "            <span class=\"jingxuan-title\">果壳精选</span>\n" +
-                "            <span class=\"jingxuan-label\">早晚给你好看</span>\n" +
-                "        </p>\n" +
-                "        <a href=\"http://www.guokr.com/mobile/\" class=\"app-down\">下载</a>\n" +
-                "    </div>", "");
+    private String convertGuokrContent() {
+        String css;
 
-        // 替换css文件为本地文件
-        guokrStory = guokrStory.replace("<link rel=\"stylesheet\" href=\"http://static.guokr.com/apps/handpick/styles/d48b771f.article.css\" />",
-                "<link rel=\"stylesheet\" href=\"file:///android_asset/guokr.article.css\" />");
-
-        // 替换js文件为本地文件
-        guokrStory = guokrStory.replace("<script src=\"http://static.guokr.com/apps/handpick/scripts/9c661fc7.base.js\"></script>",
-                "<script src=\"file:///android_asset/guokr.base.js\"></script>");
         if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
-                == Configuration.UI_MODE_NIGHT_YES){
-            guokrStory = guokrStory.replace("<div class=\"article\" id=\"contentMain\">",
-                    "<div class=\"article \" id=\"contentMain\" style=\"background-color:#212b30; color:#878787\">");
+                == Configuration.UI_MODE_NIGHT_YES) {
+            css = "<div class=\"article\" id=\"contentMain\" style=\"background-color:#212b30\">";
+        } else {
+            css = "<div class=\"article\" id=\"contentMain\">";
         }
+        return new StringBuilder()
+                .append("<!DOCTYPE html>\n")
+                .append("<html lang=\"ZH-CN\" xmlns=\"http://www.w3.org/1999/xhtml\">\n")
+                .append("<head>\n<meta charset=\"utf-8\" />\n")
+                .append("\n<link rel=\"stylesheet\" href=\"file:///android_asset/guokr_master.css\" />\n")
+                .append(css)
+                .append("<script src=\"file:///android_asset/guokr.base.js\"></script>\n")
+                .append("<script src=\"file:///android_asset/guokr.articleInline.js\"></script>")
+                .append("<script>\n")
+                .append("var ukey = null;\n")
+                .append("</script>\n")
+                .append("\n</head>\n<div class=\"content\" id=\"articleContent\"><body>\n")
+                .append(guokrStory.getResult().getContent())
+                .append("\n</div></body>\n</html>")
+                .toString();
     }
 
     private boolean checkNull() {

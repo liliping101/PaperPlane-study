@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.detail.DetailActivity;
 import com.bh.paperplane_study.entity.BeanTypeConverter;
@@ -39,7 +39,7 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
     private BookmarksContract.Presenter presenter;
 
     private ArrayList<DoubanMomentNews.posts> doubanList;
-    private ArrayList<GuokrHandpickNews.result> guokrList;
+    private ArrayList<GuokrHandpickNewsResult> guokrList;
     private ArrayList<ZhihuDailyNews.Question> zhihuList;
     private ArrayList<Integer> types;
     private List<HistoryEntity> historysQuery;
@@ -95,11 +95,11 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
                 break;
 
             case TYPE_GUOKR:
-                GuokrHandpickNews.result r = guokrList.get(position - zhihuList.size() - 2);
+                GuokrHandpickNewsResult r = guokrList.get(position - zhihuList.size() - 2);
                 intent.putExtra("type", BeanType.TYPE_GUOKR);
                 intent.putExtra("id", r.getId());
                 intent.putExtra("title", r.getTitle());
-                intent.putExtra("coverUrl", r.getHeadline_img());
+                intent.putExtra("coverUrl", r.getImageInfo().getUrl());
                 break;
             case TYPE_DOUBAN:
                 DoubanMomentNews.posts p = doubanList.get(position - zhihuList.size() - guokrList.size() - 3);
@@ -136,7 +136,7 @@ public class BookmarksPresenter implements BookmarksContract.Presenter{
         historysQuery = query.list();
         types.add(TYPE_GUOKR_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
-            GuokrHandpickNews.result result = gson.fromJson(history.getNews(), GuokrHandpickNews.result.class);
+            GuokrHandpickNewsResult result = gson.fromJson(history.getNews(), GuokrHandpickNewsResult.class);
             guokrList.add(result);
             types.add(TYPE_GUOKR_NORMAL);
         }

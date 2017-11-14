@@ -23,7 +23,8 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.detail.DetailActivity;
 import com.bh.paperplane_study.entity.BeanTypeConverter;
 import com.bh.paperplane_study.entity.HistoryEntity;
@@ -37,6 +38,8 @@ import com.google.gson.Gson;
 
 import org.greenrobot.greendao.rx.RxQuery;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -53,12 +56,13 @@ public class GuokrPresenter implements GuokrContract.Presenter {
     private GuokrContract.View view;
     private Context context;
     private HttpMethods httpMethods;
-    private ArrayList<GuokrHandpickNews.result> list = new ArrayList<GuokrHandpickNews.result>();
+    private ArrayList<GuokrHandpickNewsResult> list = new ArrayList<GuokrHandpickNewsResult>();
     private Gson gson = new Gson();
     private RxQuery<HistoryEntity> historysQuery;
     private DaoSession daoSession;
     private HistoryEntityDao historyEntityDao;
     private BeanTypeConverter converter;
+    private int mOffset = 0;
 
     public GuokrPresenter(Context context, GuokrContract.View view) {
         this.view = view;
@@ -71,110 +75,114 @@ public class GuokrPresenter implements GuokrContract.Presenter {
     }
 
     @Override
-    public void loadPosts() {
-        view.showLoading();
-
-        if (NetworkState.networkConnected(context)) {
-            httpMethods.loadGuokr(Api.GUOKR_ARTICLES,
-                new Subscriber<GuokrHandpickNews>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        view.stopLoading();
-                        view.showError();
-                    }
-
-                    @Override
-                    public void onNext(GuokrHandpickNews post) {
-                        ContentValues values = new ContentValues();
-                        list.clear();
-                        list.addAll(post.getResult());
-                        view.showResults(list);
-                        view.stopLoading();
-
-                        for (GuokrHandpickNews.result item : post.getResult()) {
-                            if ( !queryIfIDExists(item.getId())) {
-                                try {
-                                    HistoryEntity entity = new HistoryEntity();
-                                    entity.setContentId(item.getId());
-                                    entity.setNews(gson.toJson(item));
-                                    Calendar c = Calendar.getInstance();
-                                    c.setTimeInMillis((long)item.getDate_picked());
-                                    entity.setDate(c.getTime());
-                                    entity.setType(BeanType.TYPE_GUOKR);
-                                    historyEntityDao.insert(entity);
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            Intent intent = new Intent("com.marktony.zhihudaily.LOCAL_BROADCAST");
-                            intent.putExtra("type", CacheService.TYPE_GUOKR);
-                            intent.putExtra("id", item.getId());
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-                        }
-                    }
-                });
-        } else {
-            list.clear();
-            // query all notes, sorted a-z by their text
-            historysQuery = daoSession.getHistoryEntityDao()
-                    .queryBuilder()
-                    .where(HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_GUOKR)))
-                    .orderAsc(HistoryEntityDao.Properties.Id)
-                    .rx();
-
-            historysQuery
-                .list()
-                .map(new Func1<List<HistoryEntity>, List<GuokrHandpickNews.result>>() {
-                    @Override
-                    public List<GuokrHandpickNews.result> call(List<HistoryEntity> historyEntities) {
-                        List<GuokrHandpickNews.result> tmps = new ArrayList<>();
-                        for(HistoryEntity history : historyEntities) {
-                            GuokrHandpickNews.result result = gson.fromJson(history.getNews(), GuokrHandpickNews.result.class);
-                            tmps.add(result);
-                        }
-                        return tmps;
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<GuokrHandpickNews.result>>() {
-                    @Override
-                    public void call(List<GuokrHandpickNews.result> results) {
-                        list.addAll(results);
-                        view.stopLoading();
-                        if(list.size()>0) {
-                            view.showResults(list);
-                        } else {
-                            view.showError();
-                        }
-                    }
-                });
-        }
-    }
-
-    @Override
     public void startReading(int position) {
         context.startActivity(new Intent(context, DetailActivity.class)
                 .putExtra("type", BeanType.TYPE_GUOKR)
                 .putExtra("id", list.get(position).getId())
                 .putExtra("title", list.get(position).getTitle())
-                .putExtra("coverUrl", list.get(position).getHeadline_img()));
+                .putExtra("coverUrl", list.get(position).getImageInfo().getUrl()));
     }
 
     @Override
-    public void loadPosts(long date, boolean clearing) {
+    public void loadPosts(long date, final boolean clearing) {
+        if(clearing) {
+            view.showLoading();
+        }
 
+        if (NetworkState.networkConnected(context)) {
+            httpMethods.loadGuokr(Api.GUOKR_ARTICLES, mOffset,
+                    new Subscriber<GuokrHandpickNews>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            view.stopLoading();
+                            view.showError();
+                        }
+
+                        @Override
+                        public void onNext(GuokrHandpickNews post) {
+                            ContentValues values = new ContentValues();
+                            if(clearing) {
+                                list.clear();
+                            }
+                            list.addAll(post.getResult());
+                            view.showResults(list);
+                            view.stopLoading();
+
+                            for (GuokrHandpickNewsResult item : post.getResult()) {
+                                if ( !queryIfIDExists(item.getId())) {
+                                    try {
+                                        HistoryEntity entity = new HistoryEntity();
+                                        entity.setContentId(item.getId());
+                                        entity.setNews(gson.toJson(item));
+                                        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                                        entity.setDate(format.parse(item.getDatePublished()));
+                                        entity.setType(BeanType.TYPE_GUOKR);
+                                        historyEntityDao.insert(entity);
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                Intent intent = new Intent("com.marktony.zhihudaily.LOCAL_BROADCAST");
+                                intent.putExtra("type", CacheService.TYPE_GUOKR);
+                                intent.putExtra("id", item.getId());
+                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                            }
+                        }
+                    });
+        } else {
+            if(clearing) {
+                list.clear();
+                // query all notes, sorted a-z by their text
+                historysQuery = daoSession.getHistoryEntityDao()
+                        .queryBuilder()
+                        .where(HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_GUOKR)))
+                        .orderAsc(HistoryEntityDao.Properties.Id)
+                        .rx();
+
+                historysQuery
+                        .list()
+                        .map(new Func1<List<HistoryEntity>, List<GuokrHandpickNewsResult>>() {
+                            @Override
+                            public List<GuokrHandpickNewsResult> call(List<HistoryEntity> historyEntities) {
+                                List<GuokrHandpickNewsResult> tmps = new ArrayList<>();
+                                for (HistoryEntity history : historyEntities) {
+                                    GuokrHandpickNewsResult result = gson.fromJson(history.getNews(), GuokrHandpickNewsResult.class);
+                                    tmps.add(result);
+                                }
+                                return tmps;
+                            }
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Action1<List<GuokrHandpickNewsResult>>() {
+                            @Override
+                            public void call(List<GuokrHandpickNewsResult> results) {
+                                list.addAll(results);
+                                view.stopLoading();
+                                if (list.size() > 0) {
+                                    view.showResults(list);
+                                } else {
+                                    view.showError();
+                                }
+                            }
+                        });
+            }else {
+                view.stopLoading();
+                view.showError();
+            }
+        }
     }
 
     @Override
     public void refresh() {
-        loadPosts();
+        mOffset = 0;
+        loadPosts(0, true);
     }
 
     @Override
@@ -193,7 +201,8 @@ public class GuokrPresenter implements GuokrContract.Presenter {
 
     @Override
     public void start() {
-        loadPosts();
+        mOffset = 0;
+        loadPosts(0, true);
     }
 
     private boolean queryIfIDExists(int id){
@@ -207,5 +216,11 @@ public class GuokrPresenter implements GuokrContract.Presenter {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void loadMore() {
+        mOffset = list.size();
+        loadPosts(0, false);
     }
 }

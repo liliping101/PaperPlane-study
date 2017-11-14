@@ -75,8 +75,13 @@ public class HttpMethods {
         toSubscribe(observable, s);
     }
 
-    public void loadGuokr(String url, Subscriber s) {
-        Observable observable = httpService.getGuokr(url);
+    public void loadGuokr(String url, int offset, Subscriber s) {
+        Observable observable = httpService.getGuokr(url, offset);
+        toSubscribe(observable, s);
+    }
+
+    public void loadGuokrDetail(String url, Subscriber s) {
+        Observable observable = httpService.getGuokrDetail(url);
         toSubscribe(observable, s);
     }
 

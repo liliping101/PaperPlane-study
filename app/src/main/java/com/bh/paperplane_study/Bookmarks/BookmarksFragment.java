@@ -18,7 +18,7 @@ import com.bh.paperplane_study.R;
 import com.bh.paperplane_study.adapter.BookmarksAdapter;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.interfaze.OnRecyclerViewOnClickListener;
 import com.bh.paperplane_study.search.SearchActivity;
@@ -60,7 +60,7 @@ public class BookmarksFragment extends Fragment implements BookmarksContract.Vie
 
     @Override
     public void showResults(ArrayList<ZhihuDailyNews.Question> zhihuList,
-                            ArrayList<GuokrHandpickNews.result> guokrList,
+                            ArrayList<GuokrHandpickNewsResult> guokrList,
                             ArrayList<DoubanMomentNews.posts> doubanList,
                             ArrayList<Integer> types) {
         if(adapter==null) {

@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.bh.paperplane_study.R;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.interfaze.OnRecyclerViewOnClickListener;
 import com.bumptech.glide.Glide;
@@ -26,7 +26,7 @@ public class BookmarksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final Context context;
     private final LayoutInflater inflater;
     private List<DoubanMomentNews.posts> doubanList;
-    private List<GuokrHandpickNews.result> guokrList;
+    private List<GuokrHandpickNewsResult> guokrList;
     private List<ZhihuDailyNews.Question> zhihuList;
 
     private List<Integer> types; // to store which type the item is.
@@ -42,7 +42,7 @@ public class BookmarksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public BookmarksAdapter(@NonNull Context context,
                             ArrayList<ZhihuDailyNews.Question> zhihuList,
-                            ArrayList<GuokrHandpickNews.result> guokrList,
+                            ArrayList<GuokrHandpickNewsResult> guokrList,
                             ArrayList<DoubanMomentNews.posts> doubanList,
                             ArrayList<Integer> types) {
         this.context = context;
@@ -104,10 +104,10 @@ public class BookmarksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case TYPE_GUOKR_NORMAL:
 
                 if (!guokrList.isEmpty()) {
-                    GuokrHandpickNews.result result = guokrList.get(position - zhihuList.size() - 2);
+                    GuokrHandpickNewsResult result = guokrList.get(position - zhihuList.size() - 2);
 
                     Glide.with(context)
-                            .load(result.getHeadline_img_tb())
+                            .load(result.getImageInfo().getUrl())
                             .asBitmap()
                             .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                             .error(R.mipmap.placeholder)

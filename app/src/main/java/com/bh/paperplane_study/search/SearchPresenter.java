@@ -7,7 +7,7 @@ import android.content.Intent;
 import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
 import com.bh.paperplane_study.bean.DoubanMomentNews;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.detail.DetailActivity;
 import com.bh.paperplane_study.entity.BeanTypeConverter;
@@ -27,9 +27,6 @@ import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_GUOKR_NORMAL
 import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_GUOKR_WITH_HEADER;
 import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_ZHIHU_NORMAL;
 import static com.bh.paperplane_study.adapter.BookmarksAdapter.TYPE_ZHIHU_WITH_HEADER;
-import static com.bh.paperplane_study.service.CacheService.TYPE_DOUBAN;
-import static com.bh.paperplane_study.service.CacheService.TYPE_GUOKR;
-import static com.bh.paperplane_study.service.CacheService.TYPE_ZHIHU;
 
 /**
  * Created by lizhaotailang on 2016/12/25.
@@ -42,7 +39,7 @@ public class SearchPresenter implements SearchContract.Presenter {
     private Gson gson;
 
     private ArrayList<DoubanMomentNews.posts> doubanList;
-    private ArrayList<GuokrHandpickNews.result> guokrList;
+    private ArrayList<GuokrHandpickNewsResult> guokrList;
     private ArrayList<ZhihuDailyNews.Question> zhihuList;
 
     private ArrayList<Integer> types;
@@ -97,7 +94,7 @@ public class SearchPresenter implements SearchContract.Presenter {
         historysQuery = query.list();
         types.add(TYPE_GUOKR_WITH_HEADER);
         for(HistoryEntity history : historysQuery) {
-            GuokrHandpickNews.result result = gson.fromJson(history.getNews(), GuokrHandpickNews.result.class);
+            GuokrHandpickNewsResult result = gson.fromJson(history.getNews(), GuokrHandpickNewsResult.class);
             guokrList.add(result);
             types.add(TYPE_GUOKR_NORMAL);
         }
@@ -127,11 +124,11 @@ public class SearchPresenter implements SearchContract.Presenter {
                 break;
 
             case TYPE_GUOKR:
-                GuokrHandpickNews.result r = guokrList.get(position - zhihuList.size() - 2);
+                GuokrHandpickNewsResult r = guokrList.get(position - zhihuList.size() - 2);
                 intent.putExtra("type", BeanType.TYPE_GUOKR);
                 intent.putExtra("id", r.getId());
                 intent.putExtra("title", r.getTitle());
-                intent.putExtra("coverUrl", r.getHeadline_img());
+                intent.putExtra("coverUrl", r.getImageInfo().getUrl());
                 break;
             case TYPE_DOUBAN:
                 DoubanMomentNews.posts p = doubanList.get(position - zhihuList.size() - guokrList.size() - 3);

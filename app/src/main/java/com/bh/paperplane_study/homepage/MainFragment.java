@@ -94,17 +94,17 @@ public class MainFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()){
-                    case 1:
+                    case 2:
                         presenter = guokrPresenter;
                         break;
-                    case 2:
+                    case 1:
                         presenter = doubanMomentPresenter;
                         break;
                     default:
                         presenter = zhihuDailyPresenter;
                         break;
                 }
-                if (tab.getPosition() == 1) {
+                if (tab.getPosition() == 2) {
                     fab.hide();
                 } else {
                     fab.show();
@@ -168,10 +168,10 @@ public class MainFragment extends Fragment {
                 zhihuDailyPresenter.feelLucky();
                 break;
             case 1:
-                guokrPresenter.feelLucky();
+                doubanMomentPresenter.feelLucky();
                 break;
             default:
-                doubanMomentPresenter.feelLucky();
+                guokrPresenter.feelLucky();
                 break;
         }
     }

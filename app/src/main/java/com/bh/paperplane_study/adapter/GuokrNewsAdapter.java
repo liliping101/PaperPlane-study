@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bh.paperplane_study.R;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNewsResult;
 import com.bh.paperplane_study.interfaze.OnRecyclerViewOnClickListener;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -20,11 +20,11 @@ public class GuokrNewsAdapter extends RecyclerView.Adapter<GuokrNewsAdapter.Guok
 
     private final Context context;
     private final LayoutInflater inflater;
-    private List<GuokrHandpickNews.result> list;
+    private List<GuokrHandpickNewsResult> list;
 
     private OnRecyclerViewOnClickListener mListener;
 
-    public GuokrNewsAdapter(Context context, ArrayList<GuokrHandpickNews.result> list) {
+    public GuokrNewsAdapter(Context context, ArrayList<GuokrHandpickNewsResult> list) {
         this.context = context;
         this.list = list;
         inflater = LayoutInflater.from(context);
@@ -41,10 +41,10 @@ public class GuokrNewsAdapter extends RecyclerView.Adapter<GuokrNewsAdapter.Guok
     @Override
     public void onBindViewHolder(GuokrPostViewHolder holder, int position) {
 
-        GuokrHandpickNews.result item = list.get(position);
+        GuokrHandpickNewsResult item = list.get(position);
 
         Glide.with(context)
-                .load(item.getHeadline_img_tb())
+                .load(item.getImageInfo().getUrl())
                 .asBitmap()
                 .placeholder(R.mipmap.placeholder)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)

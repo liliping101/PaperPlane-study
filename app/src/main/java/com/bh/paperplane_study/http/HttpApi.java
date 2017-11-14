@@ -2,12 +2,14 @@ package com.bh.paperplane_study.http;
 
 import com.bh.paperplane_study.bean.DoubanMomentNews;
 import com.bh.paperplane_study.bean.DoubanMomentStory;
-import com.bh.paperplane_study.bean.GuokrHandpickNews;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickContent;
+import com.bh.paperplane_study.bean.Guokr.GuokrHandpickNews;
 import com.bh.paperplane_study.bean.ZhihuDailyNews;
 import com.bh.paperplane_study.bean.ZhihuDailyStory;
 
 import okhttp3.ResponseBody;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 import retrofit2.http.Url;
 import rx.Observable;
 
@@ -24,7 +26,10 @@ public interface HttpApi {
     Observable<ZhihuDailyStory> getZhihuDailyDetail(@Url String url);
 
     @GET
-    Observable<GuokrHandpickNews> getGuokr(@Url String url);
+    Observable<GuokrHandpickNews> getGuokr(@Url String url, @Query("offset")int offset);
+
+    @GET
+    Observable<GuokrHandpickContent> getGuokrDetail(@Url String url);
 
     @GET
     Observable<ResponseBody> getStringRequest(@Url String url);
