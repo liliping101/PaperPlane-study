@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.bh.paperplane_study.application.App;
 import com.bh.paperplane_study.bean.BeanType;
@@ -85,13 +86,26 @@ public class CacheService extends Service {
     }
 
     private void startDoubanCache(final int id) {
+        HistoryEntity entity = historyEntityDao.queryBuilder()
+                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_DOUBAN)))
+                .build()
+                .unique();
+
+        if (entity != null && entity.getContent() != null) {
+            return;
+        }
+
+        Log.d("llp cache douban", "id="+id);
+
         if (NetworkState.networkConnected(getApplicationContext())) {
             httpMethods.loadStringRequest(Api.DOUBAN_ARTICLE_DETAIL + id, new Subscriber<ResponseBody>() {
                 @Override
                 public void onCompleted() {}
 
                 @Override
-                public void onError(Throwable e){}
+                public void onError(Throwable e){
+                    e.printStackTrace();
+                }
 
                 @Override
                 public void onNext(ResponseBody body) {
@@ -116,14 +130,28 @@ public class CacheService extends Service {
     }
 
     private void startGuokrCache(final int id) {
+        HistoryEntity entity = historyEntityDao.queryBuilder()
+                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_GUOKR)))
+                .build()
+                .unique();
+        if (entity != null && entity.getContent() != null) {
+            return;
+        }
+
+        Log.d("llp cache guokr", "id="+id);
+
         if (NetworkState.networkConnected(getApplicationContext())) {
             httpMethods.loadStringRequest(Api.GUOKR_ARTICLE_LINK_V1 + id,
                 new Subscriber<ResponseBody>() {
                     @Override
-                    public void onCompleted() {}
+                    public void onCompleted() {
+
+                    }
 
                     @Override
-                    public void onError(Throwable e) {}
+                    public void onError(Throwable e) {
+                       e.printStackTrace();
+                    }
 
                     @Override
                     public void onNext(ResponseBody response) {
@@ -147,13 +175,25 @@ public class CacheService extends Service {
     }
 
     private void startZhihuCache(final int id) {
+        HistoryEntity entity = historyEntityDao.queryBuilder()
+                .where(HistoryEntityDao.Properties.ContentId.eq(id), HistoryEntityDao.Properties.Type.eq(converter.convertToDatabaseValue(BeanType.TYPE_ZHIHU)))
+                .build()
+                .unique();
+        if (entity != null && entity.getContent() != null) {
+            return;
+        }
+
+        Log.d("llp cache zhihu", "id="+id);
+
         if (NetworkState.networkConnected(getApplicationContext())) {
             httpMethods.loadZhihuDailyDetail(Api.ZHIHU_NEWS + id, new Subscriber<ZhihuDailyStory>() {
                 @Override
                 public void onCompleted() {}
 
                 @Override
-                public void onError(Throwable e) {}
+                public void onError(Throwable e) {
+                    e.printStackTrace();
+                }
 
                 @Override
                 public void onNext(ZhihuDailyStory zhihuDailyStory) {
