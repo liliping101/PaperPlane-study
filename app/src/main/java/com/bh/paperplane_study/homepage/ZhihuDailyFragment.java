@@ -136,7 +136,7 @@ public class ZhihuDailyFragment extends Fragment implements ZhihuDailyContract.V
 
         });
 
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             boolean isSlidingToLast = false;
 

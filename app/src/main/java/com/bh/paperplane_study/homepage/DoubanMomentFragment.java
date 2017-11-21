@@ -134,7 +134,7 @@ public class DoubanMomentFragment extends Fragment implements DoubanMomentContra
                 presenter.refresh();
             }
         });
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             boolean isSlidingToLast = false;
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
