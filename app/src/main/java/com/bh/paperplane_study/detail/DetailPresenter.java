@@ -313,7 +313,8 @@ public class DetailPresenter implements DetailContract.Presenter {
                         }
 
                         @Override
-                        public void onNext(ZhihuDailyStory zhihuDailyStory) {
+                        public void onNext(ZhihuDailyStory story) {
+                            zhihuDailyStory = story;
                             if (zhihuDailyStory.getBody() == null) {
                                 view.showResultWithoutBody(zhihuDailyStory.getShare_url());
                             } else {
